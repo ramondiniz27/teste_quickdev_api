@@ -22,4 +22,72 @@ model User {
   updated_at DateTime @updatedAt
 
   @@map("users")
+  Post Post[] @relation("user")
+  Comment Comment[] @relation("user")
+  Report Report[] @relation("user")
+}
+
+model Post {
+  id String  @default(uuid()) @unique
+  user User @relation("user", fields: [userId], references: [id])
+  comments Comment @relation("comment",fields: [commentId], references: [id])
+  userId String
+  commentId String
+  title String
+  image String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([userId, commentId])
+  @@map("posts")
+  Report Report[] @relation("post")
+}
+
+model Comment {
+  id String  @default(uuid()) @unique
+  user User @relation("user", fields: [userId], references: [id])
+  userId String
+  rating Rating @relation("rating", fields: [ratingId], references: [id])
+  ratingId String
+  title String
+  content String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([userId, ratingId])
+
+  Post Post[] @relation("comment")
+  Rating Rating[] @relation("comment")
+
+  @@map("comments")
+}
+
+model Rating {
+  id String @id @default(uuid())
+  comment Comment @relation("comment", fields: [commentId], references: [id])
+  commentId String
+  likes Int? @default(0)
+  unlikes Int? @default(0)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+
+  Comment Comment[] @relation("rating")
+
+  @@map("rating")
+}
+
+model Report {
+  id String  @default(uuid())
+  user User @relation("user", fields: [userId], references: [id])
+  posts Post @relation("post", fields: [postId], references: [id])
+  userId String
+  postId String
+
+  action_time DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@id([userId, postId])
+
+  @@map("reports")
 }
